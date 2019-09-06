@@ -1,10 +1,10 @@
-## Overview
+# Overview
 
 Welcome! This repository houses my homework assignments from **[STAT 545](https://stat545.stat.ubc.ca/)** at **UBC** taken during the **2019W1** term. Assignments are held in individual folders within the repo (i.e. all work for Assignment 1 will be in the *hw01* folder). To navigate, follow into each folder to access files pertaining to the corresponding assignment.
 
 
 
-### About Me
+## _About Me_
 
 For those who have no idea who I am, here's a brief intro to hopefully make me seem less foreign :arrow_heading_down:
 
@@ -13,4 +13,4 @@ My name is Lulu, and I am currently a first year masters student studying **Bios
 Outside of school, I am a huge adventure-bug; swimming in oceans, hiking up mountains, camping in forests - that's my kind of life! You really can't get much better than Vancouver to satisfy all your spontaneous weekend getaway needs. It's the perfect city for all things outdoorsy!
 
 As someone who always seeks positive growth through any and all situations, I'll leave you with one of my favourite quotes: 
-> "Do not dwell on the past, do not dream of the future, concentrate the mind on the present moment."
+> **_"Do not dwell on the past, do not dream of the future, concentrate the mind on the present moment."_**
