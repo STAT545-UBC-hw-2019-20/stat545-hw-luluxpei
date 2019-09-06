@@ -12,5 +12,5 @@ My name is Lulu, and I am currently a first year masters student studying **Bios
 
 Outside of school, I am a huge adventure-bug; swimming in oceans, hiking up mountains, camping in forests - that's my kind of life! You really can't get much better than Vancouver to satisfy all your spontaneous weekend getaway needs. It's the perfect city for all things outdoorsy!
 
-As someone who always seeks positive growth through any and all situations, I'll leave you with one of my favourite quotes: 
+As someone who seeks positive growth through any and all situations, I'll leave you with one of my favourite quotes: 
 > **_"Do not dwell on the past, do not dream of the future, concentrate the mind on the present moment."_**
