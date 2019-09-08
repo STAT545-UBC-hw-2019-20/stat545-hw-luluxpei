@@ -11,15 +11,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## _Overview_
 
-In this document, we will be performing some basic data exploration using the ```gapminder``` dataset. 
+In this document, we will be performing some basic data exploration using the `gapminder` dataset. 
 
-First, let's load packages. We will need to load the ```gapminder``` package to access the ``` gapminder``` data set.
+First, let's load packages. We will need to load the `gapminder` package to access the `gapminder` data set.
 
 ```{r} 
 library(gapminder)
 ```
 
-What exactly does the ```gapminder``` dataset contain? Let's find out by taking a look at the dataset description excerpt provided by R.
+What exactly does the `gapminder` dataset contain? Let's find out by taking a look at the dataset description excerpt provided by R.
 
 ```{r eval = FALSE}
 ?gapminder
