@@ -1,0 +1,115 @@
+---
+title: "Gapminder Exploration"
+author: "Lulu Pei"
+date: "08/09/2019"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r, include=FALSE}
+library(gapminder)
+```
+
+## Presentation Outline
+
+<br>
+
+1. Overview of `gapminder` dataset
+
+2. Analysis of continuous variables
+
+3. Analysis of categorical variables
+
+
+## Gapminder Dataset
+
+The `gapminder` dataset is a data frame consisting of `r nrow(gapminder)` observations and `r ncol(gapminder)` variables of interest. 
+
+```{r, echo = TRUE, comment = NA}
+head(gapminder)
+```
+
+
+***
+The `r ncol(gapminder)` variables of interest are:
+
+```{r, comment = NA}
+colnames(gapminder)
+```
+
+<br>
+
+#### Continuous variables: 
+- `lifeExp` 
+- `pop`
+- `gdpPercap`
+
+#### Categorical variables: 
+- `country`
+- `continent`
+- `year`
+
+
+## Continuous Analysis
+
+Summarize continuous variables using **5-number summary**.
+
+<br>
+
+```{r, comment = NA}
+summary(gapminder[,4:6])
+```
+
+
+***
+### `lifeExp` variable
+- `mean` approximately equal to `median`
+- symmetric distribution
+
+### `pop` variable
+- `mean` >> `median`
+- positively skewed distribution 
+
+### `gdpPercap` variable
+- `mean` > `median`
+- positively skewed distribution
+
+
+## Categorical Analysis
+
+Summarize categorical variables using **contingency table**.
+
+<br>
+
+- Each year point is represented 142 times in the dataset
+  - Reflects the 142 countries surveyed
+
+<br>
+  
+- Each country is represented 12 times in the dataset
+  - Reflects the 12 year points at which population data was collected 
+
+***
+```{r, comment = NA, echo = TRUE}
+table(gapminder$continent)
+```
+
+- Frequencies represent total number of continent occurrences
+- However, each country contributes 12 observations from different years
+- Continent distribution can be determined by removing country duplicates
+
+```{r, comment = NA, echo = TRUE}
+table(gapminder$continent) / 12
+```
+
+
+## Summary
+
+`Gapminder` dataset contains population data from 52 countries in Africa, 25 countries in the Americas, 33 countries in Asia, 30 countries in Europe, and 2 countries in Oceania, representing a total of 142 countries globally. 
+
+<br>
+
+Distribution of life expectancy is roughly symmetric, while GDP per capita and population distributions are positively skewed.
