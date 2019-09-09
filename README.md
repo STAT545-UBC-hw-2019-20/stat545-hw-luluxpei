@@ -1,6 +1,6 @@
 # Overview
 
-Welcome! This repository houses my homework assignments from **[STAT 545](https://stat545.stat.ubc.ca/)** at **UBC** taken during the **2019W1** term. Assignments are held in individual folders within the repo (i.e. all work for Assignment 1 will be in the *hw01* folder). To navigate, follow into each folder to access files pertaining to the corresponding assignment.
+Welcome! This repository houses my homework assignments from **[STAT 545](https://stat545.stat.ubc.ca/)** at **UBC** taken during the **2019W1** term. Assignments are held in individual folders within the repo (i.e. all work for Assignment 1 will be in the `hw01` folder). To navigate, follow into each folder to access files pertaining to the corresponding assignment.
 
 
 ## _About Me_
