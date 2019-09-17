@@ -1,13 +1,9 @@
 ---
 title: "Gapminder Exploration"
 author: "Lulu Pei"
-date: "08/09/2019"
+date: "12/09/2019"
 output: ioslides_presentation
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
-```
 
 ```{r, include=FALSE}
 library(gapminder)
@@ -19,9 +15,11 @@ library(gapminder)
 
 1. Overview of `gapminder` dataset
 
-2. Analysis of continuous variables
+2. Subsetting dataset
 
-3. Analysis of categorical variables
+3. Analysis of population characteristics
+
+4. Conclusion
 
 
 ## Gapminder Dataset
@@ -42,74 +40,87 @@ colnames(gapminder)
 
 <br>
 
-#### Continuous variables: 
-- `lifeExp` 
-- `pop`
-- `gdpPercap`
-
-#### Categorical variables: 
-- `country`
-- `continent`
-- `year`
+Continuous Variables | Categorical Variables
+-------------------- | ---------------------
+`lifeExp` | **`country`**
+`pop` | **`continent`**
+`gdpPercap` | **`year`**
 
 
-## Continuous Analysis
-
-Summarize continuous variables using **5-number summary**.
-
-<br>
+## Summary Statistics
 
 ```{r, comment = NA}
-summary(gapminder[,4:6])
+summary(gapminder)
 ```
 
+
+## Subsetting Dataset
+
+**Research Question**: How have `lifeExp`, `pop` and `gdpPercap` variables changed over time in Canada?
+
+For simplicity, consider three time points: 1952, 1977, 2007
+
+Define dataframes `past` to contain all observations from 1952, `mid` to contain all observations from 1977, and `present` to contain all observations from 2007.
+
+```{r}
+past <- subset(gapminder, year==1952)
+
+mid <- subset(gapminder, year==1977)
+
+present <- subset(gapminder, year==2007)
+```
+
+## Analysis
+
+Population characteristics of Canada in **1952**:
+
+```{r, comment=NA}
+past[which(past$country=="Canada"), 4:6]
+```
+
+Life expectancy at birth = 68.8 years
+
+Population = 14,785,584 people
+
+GDP per capita = US$11,367
 
 ***
-### `lifeExp` variable
-- `mean` approximately equal to `median`
-- symmetric distribution
-
-### `pop` variable
-- `mean` >> `median`
-- positively skewed distribution 
-
-### `gdpPercap` variable
-- `mean` > `median`
-- positively skewed distribution
-
-
-## Categorical Analysis
-
-Summarize categorical variables using **contingency table**.
 
 <br>
 
-- Each year point is represented 142 times in the dataset
-  - Reflects the 142 countries surveyed
+Population characteristics of Canada in **1977**:
 
-<br>
-  
-- Each country is represented 12 times in the dataset
-  - Reflects the 12 year points at which population data was collected 
+```{r, comment=NA}
+mid[which(mid$country=="Canada"), 4:6]
+```
+
+Life expectancy at birth = 74.2 years
+
+Population = 23,796,400 people
+
+GDP per capita = US$22,091
 
 ***
-```{r, comment = NA, echo = TRUE}
-table(gapminder$continent)
-```
-
-- Frequencies represent total number of continent occurrences
-- However, each country contributes 12 observations from different years
-- Continent distribution can be determined by removing country duplicates
-
-```{r, comment = NA, echo = TRUE}
-table(gapminder$continent) / 12
-```
-
-
-## Summary
-
-`Gapminder` dataset contains population data from 52 countries in Africa, 25 countries in the Americas, 33 countries in Asia, 30 countries in Europe, and 2 countries in Oceania, representing a total of 142 countries globally. 
 
 <br>
 
-Distribution of life expectancy is roughly symmetric, while GDP per capita and population distributions are positively skewed.
+Population characteristics of Canada in **2007**:
+
+```{r, comment=NA}
+present[which(present$country=="Canada"), 4:6]
+```
+
+Life expectancy at birth = 80.7 years
+
+Population = 33,390,141 people
+
+GDP per capita = US$36,319
+
+
+## Conclusion
+
+Population characteristics of Canada have been increasing relatively linearly between the years of 1952 and 2007.
+
+<br>
+
+Population increases by approximately 10 million people every 20 years, while life expectancy increases by roughly 6 years and GDP per capita increases by approximately US$11,000.

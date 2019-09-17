@@ -1,7 +1,12 @@
 Gapminder Exploration
 ================
 Lulu Pei
-08/09/2019
+12/09/2019
+
+  - [*Overview*](#overview)
+  - [*Subsetting Dataset*](#subsetting-dataset)
+  - [*Analysis*](#analysis)
+  - [*Conclusion*](#conclusion)
 
 ## *Overview*
 
@@ -46,10 +51,40 @@ head(gapminder, 10)
      9 Afghanistan Asia       1992    41.7 16317921      649.
     10 Afghanistan Asia       1997    41.8 22227415      635.
 
+Prior to performing any specific analysis, let’s obtain some summary
+statistics for the variables contained in this dataset.
+
+``` r
+summary(gapminder)
+```
+
+``` 
+        country        continent        year         lifeExp     
+ Afghanistan:  12   Africa  :624   Min.   :1952   Min.   :23.60  
+ Albania    :  12   Americas:300   1st Qu.:1966   1st Qu.:48.20  
+ Algeria    :  12   Asia    :396   Median :1980   Median :60.71  
+ Angola     :  12   Europe  :360   Mean   :1980   Mean   :59.47  
+ Argentina  :  12   Oceania : 24   3rd Qu.:1993   3rd Qu.:70.85  
+ Australia  :  12                  Max.   :2007   Max.   :82.60  
+ (Other)    :1632                                                
+      pop              gdpPercap       
+ Min.   :6.001e+04   Min.   :   241.2  
+ 1st Qu.:2.794e+06   1st Qu.:  1202.1  
+ Median :7.024e+06   Median :  3531.8  
+ Mean   :2.960e+07   Mean   :  7215.3  
+ 3rd Qu.:1.959e+07   3rd Qu.:  9325.5  
+ Max.   :1.319e+09   Max.   :113523.1  
+                                       
+```
+
+From the above output, we can read off 5-number summaries for the
+continuous variables - `lifeExp`, `pop`, and `gdpPercap` - and frequency
+data for the categorical variables - `country`, `continent`, and `year`.
+
 With this basic understanding of the type of data that is contained
 within this dataframe, let’s perform some exploratory data analysis\!
 
-## *Analysis*
+## *Subsetting Dataset*
 
 Through observing the dataset, we can see that each country has
 population data ranging from 1952 to 2007 in increments of 5 years. This
@@ -71,184 +106,75 @@ str(gapminder)
 From the output of this command, we can see that the `gapminder` dataset
 contains 6 variables - three of which (`country`, `continent`, and
 `year`) are categorical, and three of which (`lifeExp`, `pop`,
-`gdpPercap`) are continuous. To obtain summaries of each variable, we
-must consider the categorical and continuous variables separately.
+`gdpPercap`) are continuous. Suppose we are interested in investigating
+how `lifeExp`, `pop` and `gdpPercap` variables have changed over time in
+Canada. For simplicity, let’s select three time points: 1952, 1977, and
+2007.
 
-Let’s first consider the continuous variables: `lifeExp`, `pop`, and
-`gdpPercap`. The most efficient summary to obtain for continuous
-variables is the 5-number summary, providing information on the mean,
-median, minimum and maximum values, as well as quantile values.
-
-``` r
-summary(gapminder[,4:6])
-```
-
-``` 
-    lifeExp           pop              gdpPercap       
- Min.   :23.60   Min.   :6.001e+04   Min.   :   241.2  
- 1st Qu.:48.20   1st Qu.:2.794e+06   1st Qu.:  1202.1  
- Median :60.71   Median :7.024e+06   Median :  3531.8  
- Mean   :59.47   Mean   :2.960e+07   Mean   :  7215.3  
- 3rd Qu.:70.85   3rd Qu.:1.959e+07   3rd Qu.:  9325.5  
- Max.   :82.60   Max.   :1.319e+09   Max.   :113523.1  
-```
-
-From the 5-number summaries of each variable, we can make some
-inferences about their distribution. Because the `mean` and `median` for
-`lifeExp` are approximately equal, we can conclude that the distribution
-for `lifeExp` is roughly symmetric and normally distributed. Regarding
-both the `pop` and `gdpPercap` variables, the `mean` is greater than the
-`median`, suggesting that the distributions of these variables are
-positively skewed with larger values being more spread out than smaller
-values.
-
-Now, let’s consider the categorical variables: `country`, `continent`,
-and `year`. The most efficient way to summarize such variables is
-through the use of contingency tables.
+We will define dataframes `past` to contain all observations from 1952,
+`mid` to contain all observations from 1977, and `present` to contain
+all observations from 2007.
 
 ``` r
-table(gapminder$country)
+past <- subset(gapminder, year==1952)
+
+mid <- subset(gapminder, year==1977)
+
+present <- subset(gapminder, year==2007)
 ```
 
-``` 
+## *Analysis*
 
-             Afghanistan                  Albania                  Algeria 
-                      12                       12                       12 
-                  Angola                Argentina                Australia 
-                      12                       12                       12 
-                 Austria                  Bahrain               Bangladesh 
-                      12                       12                       12 
-                 Belgium                    Benin                  Bolivia 
-                      12                       12                       12 
-  Bosnia and Herzegovina                 Botswana                   Brazil 
-                      12                       12                       12 
-                Bulgaria             Burkina Faso                  Burundi 
-                      12                       12                       12 
-                Cambodia                 Cameroon                   Canada 
-                      12                       12                       12 
-Central African Republic                     Chad                    Chile 
-                      12                       12                       12 
-                   China                 Colombia                  Comoros 
-                      12                       12                       12 
-        Congo, Dem. Rep.              Congo, Rep.               Costa Rica 
-                      12                       12                       12 
-           Cote d'Ivoire                  Croatia                     Cuba 
-                      12                       12                       12 
-          Czech Republic                  Denmark                 Djibouti 
-                      12                       12                       12 
-      Dominican Republic                  Ecuador                    Egypt 
-                      12                       12                       12 
-             El Salvador        Equatorial Guinea                  Eritrea 
-                      12                       12                       12 
-                Ethiopia                  Finland                   France 
-                      12                       12                       12 
-                   Gabon                   Gambia                  Germany 
-                      12                       12                       12 
-                   Ghana                   Greece                Guatemala 
-                      12                       12                       12 
-                  Guinea            Guinea-Bissau                    Haiti 
-                      12                       12                       12 
-                Honduras         Hong Kong, China                  Hungary 
-                      12                       12                       12 
-                 Iceland                    India                Indonesia 
-                      12                       12                       12 
-                    Iran                     Iraq                  Ireland 
-                      12                       12                       12 
-                  Israel                    Italy                  Jamaica 
-                      12                       12                       12 
-                   Japan                   Jordan                    Kenya 
-                      12                       12                       12 
-        Korea, Dem. Rep.              Korea, Rep.                   Kuwait 
-                      12                       12                       12 
-                 Lebanon                  Lesotho                  Liberia 
-                      12                       12                       12 
-                   Libya               Madagascar                   Malawi 
-                      12                       12                       12 
-                Malaysia                     Mali               Mauritania 
-                      12                       12                       12 
-               Mauritius                   Mexico                 Mongolia 
-                      12                       12                       12 
-              Montenegro                  Morocco               Mozambique 
-                      12                       12                       12 
-                 Myanmar                  Namibia                    Nepal 
-                      12                       12                       12 
-             Netherlands              New Zealand                Nicaragua 
-                      12                       12                       12 
-                   Niger                  Nigeria                   Norway 
-                      12                       12                       12 
-                    Oman                 Pakistan                   Panama 
-                      12                       12                       12 
-                Paraguay                     Peru              Philippines 
-                      12                       12                       12 
-                  Poland                 Portugal              Puerto Rico 
-                      12                       12                       12 
-                 Reunion                  Romania                   Rwanda 
-                      12                       12                       12 
-   Sao Tome and Principe             Saudi Arabia                  Senegal 
-                      12                       12                       12 
-                  Serbia             Sierra Leone                Singapore 
-                      12                       12                       12 
-         Slovak Republic                 Slovenia                  Somalia 
-                      12                       12                       12 
-            South Africa                    Spain                Sri Lanka 
-                      12                       12                       12 
-                   Sudan                Swaziland                   Sweden 
-                      12                       12                       12 
-             Switzerland                    Syria                   Taiwan 
-                      12                       12                       12 
-                Tanzania                 Thailand                     Togo 
-                      12                       12                       12 
-     Trinidad and Tobago                  Tunisia                   Turkey 
-                      12                       12                       12 
-                  Uganda           United Kingdom            United States 
-                      12                       12                       12 
-                 Uruguay                Venezuela                  Vietnam 
-                      12                       12                       12 
-      West Bank and Gaza              Yemen, Rep.                   Zambia 
-                      12                       12                       12 
-                Zimbabwe 
-                      12 
-```
+Now that we have all the prep work done, let’s begin our analysis\!
+Starting with 1952, what were the population characteristics in Canada?
 
 ``` r
-table(gapminder$continent)
+past[which(past$country=="Canada"), 4:6]
 ```
 
-``` 
+    # A tibble: 1 x 3
+      lifeExp      pop gdpPercap
+        <dbl>    <int>     <dbl>
+    1    68.8 14785584    11367.
 
-  Africa Americas     Asia   Europe  Oceania 
-     624      300      396      360       24 
-```
+From this output we can observe that in 1952 Canada had a life
+expectancy at birth of 68.8 years, a population of 14,785,584 people,
+and a GDP per capita of US$11,367.
+
+Now, let’s take a look at 1977.
 
 ``` r
-table(gapminder$year)
+mid[which(mid$country=="Canada"), 4:6]
 ```
 
-``` 
+    # A tibble: 1 x 3
+      lifeExp      pop gdpPercap
+        <dbl>    <int>     <dbl>
+    1    74.2 23796400    22091.
 
-1952 1957 1962 1967 1972 1977 1982 1987 1992 1997 2002 2007 
- 142  142  142  142  142  142  142  142  142  142  142  142 
-```
+In 1977, Canada had a life expectancy at birth of 74.2 years, a
+population of 23,796,400 people, and a GDP per capita of US$22,091.
 
-From the output, we can see that each country is represented 12 times in
-the dataset, which reflects the 12 year points at which data was
-collected. Each year point is represented 142 times in the dataset,
-reflecting the 142 countries included in the `gapminder` dataset. We can
-also observe the country distribution by continent. To do this, we must
-take `continent` frequencies and divide by the number of year points to
-remove duplicating countries.
+Finally, let’s analyze the most recent time point, 2007.
 
 ``` r
-table(gapminder$continent) / 12
+present[which(present$country=="Canada"), 4:6]
 ```
 
-``` 
+    # A tibble: 1 x 3
+      lifeExp      pop gdpPercap
+        <dbl>    <int>     <dbl>
+    1    80.7 33390141    36319.
 
-  Africa Americas     Asia   Europe  Oceania 
-      52       25       33       30        2 
-```
+Using the same technique, we observe that in 2007, Canada had a
+population of 33,390,141 people, with a life expectancy at birth of 80.7
+years and a GDP per capita of US$36,319.
 
-This command allows us to conclude that the `gapminder` dataset contains
-population data from 52 countries in Africa, 25 countries in the
-Americas, 33 countries in Asia, 30 countries in Europe, and 2 countries
-in Oceania, representing a total of 142 countries globally.
+## *Conclusion*
+
+Through this basic analysis of a subset of the `gapminder` dataset, we
+can see that the population characteristics of Canada have been
+increasing relatively linearly between the years of 1952 and 2007.
+Population increases by approximately 10 million people every 20 years,
+while life expectancy increases by 6 years and GDP per capita increases
+by approximately US$11,000.

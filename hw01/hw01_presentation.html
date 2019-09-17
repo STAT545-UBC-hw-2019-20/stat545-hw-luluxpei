@@ -9,7 +9,7 @@
 
 
 
-  <meta name="date" content="2019-08-09" />
+  <meta name="date" content="2019-12-09" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3116,7 +3116,7 @@ slide:not(.current) .plotly.html-widget{
       <h1 data-config-title><!-- populated from slide_config.json --></h1>
       <h2 data-config-subtitle><!-- populated from slide_config.json --></h2>
       <p data-config-presenter><!-- populated from slide_config.json --></p>
-            <p style="margin-top: 6px; margin-left: -2px;">08/09/2019</p>
+            <p style="margin-top: 6px; margin-left: -2px;">12/09/2019</p>
           </hgroup>
   </slide>
 
@@ -3126,8 +3126,9 @@ slide:not(.current) .plotly.html-widget{
 
 <ol>
 <li><p>Overview of <code>gapminder</code> dataset</p></li>
-<li><p>Analysis of continuous variables</p></li>
-<li><p>Analysis of categorical variables</p></li>
+<li><p>Subsetting dataset</p></li>
+<li><p>Analysis of population characteristics</p></li>
+<li><p>Conclusion</p></li>
 </ol>
 
 </article></slide><slide class=""><hgroup><h2>Gapminder Dataset</h2></hgroup><article  id="gapminder-dataset">
@@ -3150,114 +3151,128 @@ slide:not(.current) .plotly.html-widget{
 
 <p>The 6 variables of interest are:</p>
 
+<pre class = 'prettyprint lang-r'>colnames(gapminder)</pre>
+
 <pre >[1] &quot;country&quot;   &quot;continent&quot; &quot;year&quot;      &quot;lifeExp&quot;   &quot;pop&quot;       &quot;gdpPercap&quot;</pre>
 
 <p><br></p>
 
-<h4>Continuous variables:</h4>
+<table class = 'rmdtable'>
+<tr class="header">
+<th align="left">Continuous Variables</th>
+<th align="left">Categorical Variables</th>
+</tr>
+<tr class="odd">
+<td align="left"><code>lifeExp</code></td>
+<td align="left"><strong><code>country</code></strong></td>
+</tr>
+<tr class="even">
+<td align="left"><code>pop</code></td>
+<td align="left"><strong><code>continent</code></strong></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>gdpPercap</code></td>
+<td align="left"><strong><code>year</code></strong></td>
+</tr>
+</table>
 
-<ul>
-<li><code>lifeExp</code></li>
-<li><code>pop</code></li>
-<li><code>gdpPercap</code></li>
-</ul>
+</article></slide><slide class=""><hgroup><h2>Summary Statistics</h2></hgroup><article  id="summary-statistics">
 
-<h4>Categorical variables:</h4>
+<pre class = 'prettyprint lang-r'>summary(gapminder)</pre>
 
-<ul>
-<li><code>country</code></li>
-<li><code>continent</code></li>
-<li><code>year</code></li>
-</ul>
+<pre >        country        continent        year         lifeExp     
+ Afghanistan:  12   Africa  :624   Min.   :1952   Min.   :23.60  
+ Albania    :  12   Americas:300   1st Qu.:1966   1st Qu.:48.20  
+ Algeria    :  12   Asia    :396   Median :1980   Median :60.71  
+ Angola     :  12   Europe  :360   Mean   :1980   Mean   :59.47  
+ Argentina  :  12   Oceania : 24   3rd Qu.:1993   3rd Qu.:70.85  
+ Australia  :  12                  Max.   :2007   Max.   :82.60  
+ (Other)    :1632                                                
+      pop              gdpPercap       
+ Min.   :6.001e+04   Min.   :   241.2  
+ 1st Qu.:2.794e+06   1st Qu.:  1202.1  
+ Median :7.024e+06   Median :  3531.8  
+ Mean   :2.960e+07   Mean   :  7215.3  
+ 3rd Qu.:1.959e+07   3rd Qu.:  9325.5  
+ Max.   :1.319e+09   Max.   :113523.1  
+                                       </pre>
 
-</article></slide><slide class=""><hgroup><h2>Continuous Analysis</h2></hgroup><article  id="continuous-analysis">
+</article></slide><slide class=""><hgroup><h2>Subsetting Dataset</h2></hgroup><article  id="subsetting-dataset">
 
-<p>Summarize continuous variables using <strong>5-number summary</strong>.</p>
+<p><strong>Research Question</strong>: How have <code>lifeExp</code>, <code>pop</code> and <code>gdpPercap</code> variables changed over time in Canada?</p>
 
-<p><br></p>
+<p>For simplicity, consider three time points: 1952, 1977, 2007</p>
 
-<pre >    lifeExp           pop              gdpPercap       
- Min.   :23.60   Min.   :6.001e+04   Min.   :   241.2  
- 1st Qu.:48.20   1st Qu.:2.794e+06   1st Qu.:  1202.1  
- Median :60.71   Median :7.024e+06   Median :  3531.8  
- Mean   :59.47   Mean   :2.960e+07   Mean   :  7215.3  
- 3rd Qu.:70.85   3rd Qu.:1.959e+07   3rd Qu.:  9325.5  
- Max.   :82.60   Max.   :1.319e+09   Max.   :113523.1  </pre>
+<p>Define dataframes <code>past</code> to contain all observations from 1952, <code>mid</code> to contain all observations from 1977, and <code>present</code> to contain all observations from 2007.</p>
 
-</article></slide><slide class=""><hgroup><h2></h2></hgroup><article >
+<pre class = 'prettyprint lang-r'>past &lt;- subset(gapminder, year==1952)
 
-<h3><code>lifeExp</code> variable</h3>
+mid &lt;- subset(gapminder, year==1977)
 
-<ul>
-<li><code>mean</code> approximately equal to <code>median</code></li>
-<li>symmetric distribution</li>
-</ul>
+present &lt;- subset(gapminder, year==2007)</pre>
 
-<h3><code>pop</code> variable</h3>
+</article></slide><slide class=""><hgroup><h2>Analysis</h2></hgroup><article  id="analysis">
 
-<ul>
-<li><code>mean</code> &gt;&gt; <code>median</code></li>
-<li>positively skewed distribution</li>
-</ul>
+<p>Population characteristics of Canada in <strong>1952</strong>:</p>
 
-<h3><code>gdpPercap</code> variable</h3>
+<pre class = 'prettyprint lang-r'>past[which(past$country==&quot;Canada&quot;), 4:6]</pre>
 
-<ul>
-<li><code>mean</code> &gt; <code>median</code></li>
-<li>positively skewed distribution</li>
-</ul>
+<pre ># A tibble: 1 x 3
+  lifeExp      pop gdpPercap
+    &lt;dbl&gt;    &lt;int&gt;     &lt;dbl&gt;
+1    68.8 14785584    11367.</pre>
 
-</article></slide><slide class=""><hgroup><h2>Categorical Analysis</h2></hgroup><article  id="categorical-analysis">
+<p>Life expectancy at birth = 68.8 years</p>
 
-<p>Summarize categorical variables using <strong>contingency table</strong>.</p>
+<p>Population = 14,785,584 people</p>
 
-<p><br></p>
-
-<ul>
-<li>Each year point is represented 142 times in the dataset
-
-<ul>
-<li>Reflects the 142 countries surveyed</li>
-</ul></li>
-</ul>
-
-<p><br></p>
-
-<ul>
-<li>Each country is represented 12 times in the dataset
-
-<ul>
-<li>Reflects the 12 year points at which population data was collected</li>
-</ul></li>
-</ul>
+<p>GDP per capita = US$11,367</p>
 
 </article></slide><slide class=""><hgroup><h2></h2></hgroup><article >
 
-<pre class = 'prettyprint lang-r'>table(gapminder$continent)</pre>
+<p><br></p>
 
-<pre >
-  Africa Americas     Asia   Europe  Oceania 
-     624      300      396      360       24 </pre>
+<p>Population characteristics of Canada in <strong>1977</strong>:</p>
 
-<ul>
-<li>Frequencies represent total number of continent occurrences</li>
-<li>However, each country contributes 12 observations from different years</li>
-<li>Continent distribution can be determined by removing country duplicates</li>
-</ul>
+<pre class = 'prettyprint lang-r'>mid[which(mid$country==&quot;Canada&quot;), 4:6]</pre>
 
-<pre class = 'prettyprint lang-r'>table(gapminder$continent) / 12</pre>
+<pre ># A tibble: 1 x 3
+  lifeExp      pop gdpPercap
+    &lt;dbl&gt;    &lt;int&gt;     &lt;dbl&gt;
+1    74.2 23796400    22091.</pre>
 
-<pre >
-  Africa Americas     Asia   Europe  Oceania 
-      52       25       33       30        2 </pre>
+<p>Life expectancy at birth = 74.2 years</p>
 
-</article></slide><slide class=""><hgroup><h2>Summary</h2></hgroup><article  id="summary">
+<p>Population = 23,796,400 people</p>
 
-<p><code>Gapminder</code> dataset contains population data from 52 countries in Africa, 25 countries in the Americas, 33 countries in Asia, 30 countries in Europe, and 2 countries in Oceania, representing a total of 142 countries globally.</p>
+<p>GDP per capita = US$22,091</p>
+
+</article></slide><slide class=""><hgroup><h2></h2></hgroup><article >
 
 <p><br></p>
 
-<p>Distribution of life expectancy is roughly symmetric, while GDP per capita and population distributions are positively skewed.</p></article></slide>
+<p>Population characteristics of Canada in <strong>2007</strong>:</p>
+
+<pre class = 'prettyprint lang-r'>present[which(present$country==&quot;Canada&quot;), 4:6]</pre>
+
+<pre ># A tibble: 1 x 3
+  lifeExp      pop gdpPercap
+    &lt;dbl&gt;    &lt;int&gt;     &lt;dbl&gt;
+1    80.7 33390141    36319.</pre>
+
+<p>Life expectancy at birth = 80.7 years</p>
+
+<p>Population = 33,390,141 people</p>
+
+<p>GDP per capita = US$36,319</p>
+
+</article></slide><slide class=""><hgroup><h2>Conclusion</h2></hgroup><article  id="conclusion">
+
+<p>Population charactersitics of Canada have been increasing relatively linearly between the years of 1952 and 2007.</p>
+
+<p><br></p>
+
+<p>Population increases by approximately 10 million people every 20 years, while life expectancy increases by roughly 6 years and GDP per capita increases by approximately US$11,000.</p></article></slide>
 
 
   <slide class="backdrop"></slide>

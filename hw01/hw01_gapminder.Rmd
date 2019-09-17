@@ -1,17 +1,15 @@
 ---
 title: "Gapminder Exploration"
 author: "Lulu Pei"
-date: "08/09/2019"
-output: github_document
+date: "12/09/2019"
+output: 
+  github_document:
+    toc: TRUE
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, comment = NA)
-```
 
 ## _Overview_
 
-In this document, we will be performing some basic data exploration using the `gapminder` dataset. 
+In this document, we will be performing some basic data exploration using the `gapminder` dataset.
 
 First, let's load packages. We will need to load the `gapminder` package to access the `gapminder` data set.
 
@@ -21,7 +19,7 @@ library(gapminder)
 
 What exactly does the `gapminder` dataset contain? Let's find out by taking a look at the dataset description excerpt provided by R.
 
-```{r eval = FALSE}
+```{r eval = FALSE, comment = NA}
 ?gapminder
 ```
 
@@ -29,45 +27,68 @@ From this excerpt we can see that the dataset contains yearly population, life e
 
 Here are the first 10 lines of the dataset to present an overview:
 
-```{r}
+```{r, comment = NA}
 head(gapminder, 10)
 ```
+
+Prior to performing any specific analysis, let's obtain some summary statistics for the variables contained in this dataset. 
+
+```{r, comment = NA}
+summary(gapminder)
+```
+
+From the above output, we can read off 5-number summaries for the continuous variables - `lifeExp`, `pop`, and `gdpPercap` - and frequency data for the categorical variables - `country`, `continent`, and `year`. 
 
 With this basic understanding of the type of data that is contained within this dataframe, let's perform some exploratory data analysis!
 
 
-## _Analysis_
+## _Subsetting Dataset_
 
 Through observing the dataset, we can see that each country has population data ranging from 1952 to 2007 in increments of 5 years. This is a large dataset, so let's breakdown the type of data that we are dealing with.
 
-```{r}
+```{r, comment= NA}
 str(gapminder)
 ```
 
-From the output of this command, we can see that the `gapminder` dataset contains 6 variables - three of which (`country`, `continent`, and `year`) are categorical, and three of which (`lifeExp`, `pop`, `gdpPercap`) are continuous. To obtain summaries of each variable, we must consider the categorical and continuous variables separately. 
+From the output of this command, we can see that the `gapminder` dataset contains 6 variables - three of which (`country`, `continent`, and `year`) are categorical, and three of which (`lifeExp`, `pop`, `gdpPercap`) are continuous. Suppose we are interested in investigating how `lifeExp`, `pop` and `gdpPercap` variables have changed over time in Canada. For simplicity, let's select three time points: 1952, 1977, and 2007.
 
-Let's first consider the continuous variables: `lifeExp`, `pop`, and `gdpPercap`. The most efficient summary to obtain for continuous variables is the 5-number summary, providing information on the mean, median, minimum and maximum values, as well as quantile values. 
-
-```{r}
-summary(gapminder[,4:6])
-```
-
-From the 5-number summaries of each variable, we can make some inferences about their distribution. Because the `mean` and `median` for `lifeExp` are approximately equal, we can conclude that the distribution for `lifeExp` is roughly symmetric and normally distributed. Regarding both the `pop` and `gdpPercap` variables, the `mean` is greater than the `median`, suggesting that the distributions of these variables are positively skewed with larger values being more spread out than smaller values. 
-
-Now, let's consider the categorical variables: `country`, `continent`, and `year`. The most efficient way to summarize such variables is through the use of contingency tables. 
+We will define dataframes `past` to contain all observations from 1952, `mid` to contain all observations from 1977, and `present` to contain all observations from 2007.
 
 ```{r}
-table(gapminder$country)
+past <- subset(gapminder, year==1952)
 
-table(gapminder$continent)
+mid <- subset(gapminder, year==1977)
 
-table(gapminder$year)
+present <- subset(gapminder, year==2007)
 ```
 
-From the output, we can see that each country is represented 12 times in the dataset, which reflects the 12 year points at which data was collected. Each year point is represented 142 times in the dataset, reflecting the 142 countries included in the `gapminder` dataset. We can also observe the country distribution by continent. To do this, we must take `continent` frequencies and divide by the number of year points to remove duplicating countries. 
 
-```{r}
-table(gapminder$continent) / 12
+## _Analysis_
+
+Now that we have all the prep work done, let's begin our analysis! Starting with 1952, what were the population characteristics in Canada? 
+
+```{r, comment=NA}
+past[which(past$country=="Canada"), 4:6]
 ```
 
-This command allows us to conclude that the `gapminder` dataset contains population data from 52 countries in Africa, 25 countries in the Americas, 33 countries in Asia, 30 countries in Europe, and 2 countries in Oceania, representing a total of 142 countries globally. 
+From this output we can observe that in 1952, Canada had a life expectancy at birth of 68.8 years, a population of 14,785,584 people, and a GDP per capita of US$11,367. 
+
+Now, let's take a look at 1977. 
+
+```{r, comment=NA}
+mid[which(mid$country=="Canada"), 4:6]
+```
+
+In 1977, Canada had a life expectancy at birth of 74.2 years, a population of 23,796,400 people, and a GDP per capita of US$22,091.
+
+Finally, let's analyze the most recent time point, 2007. 
+
+```{r, comment=NA}
+present[which(present$country=="Canada"), 4:6]
+```
+
+Using the same technique, we observe that in 2007, Canada had a population of 33,390,141 people, with a life expectancy at birth of 80.7 years and a GDP per capita of US$36,319.
+
+## _Conclusion_
+
+Through this basic analysis of the Canadian subset of the `gapminder` dataset, we can infer that the population characteristics of Canada have been increasing relatively linearly between the years of 1952 and 2007. Population increases by approximately 10 million people every 20 years, while life expectancy increases by 6 years and GDP per capita increases by approximately US$11,000.
