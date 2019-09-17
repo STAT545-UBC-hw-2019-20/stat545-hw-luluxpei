@@ -137,7 +137,7 @@ past[which(past$country=="Canada"), 4:6]
         <dbl>    <int>     <dbl>
     1    68.8 14785584    11367.
 
-From this output we can observe that in 1952 Canada had a life
+From this output we can observe that in 1952, Canada had a life
 expectancy at birth of 68.8 years, a population of 14,785,584 people,
 and a GDP per capita of US$11,367.
 
@@ -172,8 +172,8 @@ years and a GDP per capita of US$36,319.
 
 ## *Conclusion*
 
-Through this basic analysis of a subset of the `gapminder` dataset, we
-can see that the population characteristics of Canada have been
+Through this basic analysis of the Canadian subset of the `gapminder` dataset, we
+can infer that the population characteristics of Canada have been
 increasing relatively linearly between the years of 1952 and 2007.
 Population increases by approximately 10 million people every 20 years,
 while life expectancy increases by 6 years and GDP per capita increases
