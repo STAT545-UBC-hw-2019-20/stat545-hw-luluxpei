@@ -4,9 +4,7 @@ author: "Lulu Pei"
 date: "22/09/2019"
 output: 
   html_document:
-    toc: TRUE
-  pdf_document:
-always_allow_html: yes
+    toc: true
 ---
 
 # Overview
@@ -18,8 +16,6 @@ library(gapminder)
 library(tidyverse)
 ```
 
-<br>
-
 # Question 1 - Basic `dplyr`
 
 ## _1.1 - Filtering_
@@ -28,7 +24,7 @@ Filter `gapminder` data to contain only observations from Canada, the United Sta
 
 ```{r, comment = NA}
 gapminder %>%
-  filter(country == 'Canada' | country == 'United States' | country == 'Mexico',
+  filter(country == "Canada" | country == "United States" | country == "Mexico",
          year >= 1970 & year < 1980) %>%
   knitr::kable()
 ```
@@ -47,12 +43,13 @@ gapminder %>%
 
 ## _1.3 - Mutating_
 
-Suppose we want to look at all the countries that have ever experienced a drop in life expectancy between 1952 and 2007. Let's define a new variable `lifeExp_change`, equaling the difference between life expectancy at one time point and life expectancy at the time point before.
+Suppose we want to look at all the countries that have ever experienced a drop in life expectancy between 1952 and 2007. Let's define a new variable `lifeExp_change`, equaling the difference between life expectancy at one time point and life expectancy at the time point before (5 years earlier).
 
 ```{r, comment = NA}
 gapminder %>%
   group_by(country) %>%
-  mutate(lifeExp_change = lifeExp - lag(lifeExp, order_by = year)) %>%
+  arrange(year) %>%
+  mutate(lifeExp_change = lifeExp - lag(lifeExp)) %>%
   filter(lifeExp_change < 0) %>%
   DT::datatable()
 ```
@@ -63,12 +60,13 @@ We can see that many countries have experienced a drop in life expectancy at som
 gapminder %>%
   filter(year == 1952 | year == 2007) %>%
   group_by(country) %>%
+  arrange(year) %>%
   mutate(lifeExp_change = lifeExp - lag(lifeExp)) %>%
   filter(lifeExp_change < 0) %>%
   knitr::kable()
 ```
 
-From this output, we can see that the only countries that experienced an overall decline in life expectancy were Swaziland and Zimbabwe, with a decline of 1.794 and 4.964 years, respectively.
+From this output, we can see that the only countries that experienced an overall decline in life expectancy between 1952 and 2007 were Swaziland and Zimbabwe, with a decline of 1.794 and 4.964 years, respectively.
 
 ## _1.4 - Slicing_
 
@@ -76,15 +74,15 @@ Now, let's filter the `gapminder` dataset to show the maximum GDP per capita exp
 
 ```{r, comment = NA}
 gapminder %>%
-  select(country, gdpPercap) %>%
+  select(country, year, gdpPercap) %>%
   group_by(country) %>%
-  slice(which.max(gdpPercap)) %>%
-  rename(max_gdpPercap = gdpPercap) %>%
+  mutate(max_gdpPercap = max(gdpPercap)) %>%
+  filter(max_gdpPercap == gdpPercap) %>%
+  select(country, year, max_gdpPercap) %>%
   DT::datatable()
 ```
 
-This output allows us to determine in which year a country had its maximum GDP per capita, and what the life expectancy, population, and GDP per capita was at that time. 
-<br>
+This output allows us to determine the maximum GDP per capita experienced by each country between 1952 and 2007, and also in which year it was experienced.
 
 ## _1.5 - Plotting_
 
@@ -102,7 +100,6 @@ gapminder %>%
 
 From this plot, we can see that in Canada, life expectancy has been increasing relatively linearly with the log transform of GDP per capita between the years of 1952 and 2007.
 
-<br>
 
 # Question 2 - Variable Exploration
 
@@ -121,15 +118,17 @@ Categorical variable exploration is usually performed through the generation of 
 ```{r}
 gapminder %>%
   count(continent) %>%
+  rename(count = n) %>%
   knitr::kable()
 ```
 
-This command prints out the number of observations for each continent in our dataset. However, by looking at the `gapminder` dataset, we see that each country contributes 12 observations (represeting 12 time points) to the dataset. Suppose we want to know how many countries are in each continent for the `gapminder` dataset. To determine this, we need to remove replicates of the same country. The simpliest way to achieve this is to consider continent counts at each time point.
+This command prints out the number of observations for each continent in our dataset. However, by looking at the `gapminder` dataset, we see that each country contributes 12 observations (represeting 12 time points) to the dataset. Suppose we want to know how many countries are in each continent for the `gapminder` dataset. To determine this, we need to remove replicates of the same country. The simpliest way to achieve this is to consider continent counts at each individual time point.
 
-```{r}
+```{r, comment = NA}
 gapminder %>%
   group_by(year) %>%
   count(continent) %>%
+  rename(country_count = n) %>%
   DT::datatable()
 ```
 
@@ -137,8 +136,7 @@ We see that country distirbution does not change from year to year - there are t
 
 ```{r, fig.align='center'}
 gapminder %>%
-  group_by(year) %>%
-  filter(year==2007) %>%
+  filter(year == 2007) %>%
   ggplot(aes(continent)) +
   geom_bar(fill = "orange", alpha = 0.7) +
   ylab("Number of Countries") +
@@ -171,7 +169,7 @@ gapminder %>%
   knitr::kable()
 ```
 
-From these summary statistics, we can see that there is a lot of variation in the `pop` variable (large standard deviation values). This is to be expected due to the large variation in population size across countries in the world. To visualize this graphically, we can plot side-by-side boxplots representing global population data at each time point.
+From these summary statistics, we can see that there is a lot of variation in the `pop` variable - large standard deviation values with values progressively increasing over time, suggesting greater diversity in population size in more recent years. We also observe that the overall distribution of population has shifted to greater values, with all statistics increasing over time. To visualize this graphically, we can plot side-by-side boxplots representing global population data at each time point.
 
 ```{r, fig.align='center'}
 gapminder %>%
@@ -182,31 +180,30 @@ gapminder %>%
   xlab("Year")
 ```
 
-From this graph, we can observe a relatively consistent slow linear increase in log-transformed population over time, suggesting that between 1952 and 2007, global population has been steadily increasing. 
+From this graph, we can observe a relatively consistent slow linear increase in log-transformed population over time, suggesting that between 1952 and 2007, global population has been steadily increasing. We also observe wide error bars and evident outliers, highlighting the population size diversity between countries globally.
 
-<br>
 
 # Question 3 - Plot Exploration
 
 ## _3.1 - Scatterplot_
 
-The first plot type that we are going to explore is the scatterplot. Suppose we want to group the `gapminder` dataset by continent, and then plot the relationship between life expectancy at birth and GDP per capita.
+The first plot type that we are going to explore is the scatterplot. Suppose we want to group the `gapminder` dataset by continent, and then plot the relationship between life expectancy at birth and GDP per capita, to investigate whether this relationship varies with continent.
 
 ```{r fig.align='center'}
 gapminder %>%
   group_by(continent) %>%
   ggplot(aes(x = gdpPercap, y = lifeExp, colour = continent)) +
-  geom_point(alpha = 0.7) +
+  geom_point(alpha = 0.8) +
   scale_x_log10() +
   ylab("Life expectancy at birth (year)") +
   xlab("GDP per capita (log(US$))")
 ```
 
-From the scatterplot, we can see that life expectancy and GDP per capita are roughly positively correlated, following a linear relationship. Not only does life expectancy tend to increase with GDP per capita, we can also observe that countries in Europe and Oceania tend to have higher life expectancy and GDP whereas countries in Africa tend to have lower life expectancy and GDP. Countries in the Americas and Asia seem to have more varied distributions of life expectancy and GDP with more discrepancy between countries.
+From the scatterplot, we can see that life expectancy and GDP per capita are roughly positively correlated, following a linear relationship. Not only does life expectancy tend to increase with GDP per capita, we can also observe that countries in Europe and Oceania tend to have higher life expectancy and GDP whereas countries in Africa tend to have lower life expectancy and GDP. Countries in the Americas and Asia seem to have more varied distributions of life expectancy and GDP with more discrepancy between countries. We also note that some countries in Africa and Asia deviate from the general trend of increasing life expectancy with higher GDP per capita. 
 
 ## _3.2 - Time Series_
 
-The second plot type we are going to explore is a time series. Suppose we want to investigate how population has changed over time between 1952 and 2007 in Canada, France, and Australia. We can visualize this through making a time series plot and fitting a trendline. 
+The second plot type we are going to explore is a time series. Suppose we want to investigate how population has changed over time between 1952 and 2007 in Canada, France, and Australia. We can visualize this through making a time series plot and fitting individual trendlines for population data from each country. 
 
 ```{r, fig.align='center'}
 gapminder %>%
@@ -219,22 +216,22 @@ gapminder %>%
   theme(legend.title=element_blank())
 ```
 
-From observing the trendlines, we can observe that all countries have experienced roughly linear increases in population over time. Canada and France seem to have similar rates of population increase, while the rate of increase in population is slower in Australia. Between 1952 and 2007, Canada and France have experienced an increase in population of approximately 20 million people, while Australia's population has increased by approximately 10 million people. 
+From observing the trendlines, we can see that all countries have experienced roughly linear increases in population over time. Canada and France seem to have similar rates of population increase, while the rate of increase in population is slower in Australia. We can infer that between 1952 and 2007, Canada and France have experienced an increase in population of approximately 20 million people, while Australia's population has increased by approximately 10 million people. 
 
 # Bonus - Recycling
 
 Evaluation of the following command:
 
-```{r}
+```{r, comment = NA}
 filter(gapminder, country == c("Rwanda", "Afghanistan")) %>%
   DT::datatable()
 ```
 
-The analyst's goal was to obtain a subset of the `gapminder` dataset, containing data from Rwanda and Afghanistan. However, the output of the above command only returns 12 observations when there should have been 24 (12 observations for each country representing the 12 time points between 1952 and 2007). Each year should have both a Rwanda observation and an Afghanistan observation; however, in our subset, each year is only represented by one country. This suggests that the subsetted data is incomplete. 
+The analyst's goal was to obtain a subset of the `gapminder` dataset, containing data from Rwanda and Afghanistan. However, the output of the above command only returns 12 observations when there should have been 24 (12 observations for each country representing the 12 time points between 1952 and 2007). Each year should have both a Rwanda observation and an Afghanistan observation; however, in our subset, each year is only represented by one country. This suggests that the subsetted data is incomplete, and the analyst did not succeed in their initial goal.
 
-To correctly obtain all data from Rwanda and Afghanistan, we can use the logical "or" operator (denoted as "|" in `dplyr`). The code below will return a dataframe that contains all observations from either Rwanda or Afghanistan.
+To correctly obtain all data from Rwanda and Afghanistan, we can use the logical "or" operator (denoted as "|" in `dplyr`). The code below will return a dataframe that contains all observations from both Rwanda and Afghanistan.
 
-```{r}
+```{r, comment = NA}
 filter(gapminder, country == "Rwanda" | country == "Afghanistan") %>%
   DT::datatable()
 ```
