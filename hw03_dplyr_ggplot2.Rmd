@@ -1,0 +1,204 @@
+---
+title: "Assignment 3 - `dplyr` and `ggplot2`"
+author: "Lulu Pei"
+date: "25/09/2019"
+output: 
+  html_document:
+    toc: true
+---
+
+# Overview
+
+In this assignment, we will be performing analysis on the `gapminder` dataset. To access this dataset, we must load the `gapminder` package. We will be performing analysis using `dplyr` functions, thus we will also need to load its parent package, `tidyverse`.
+
+```{r, message = FALSE}
+library(gapminder)
+library(tidyverse)
+```
+
+Now that we have our tools loaded and ready to go, let's complete a few tasks to gain a deeper understanding of the `gapminder` dataset. 
+
+# Task 1
+
+As our first task, suppose we wanted to determine the absolute abundance of countries with low life expectancy over time by continent (task option 1). We will define low life expectancy to be below the mean life expectancy for that year. Let's proceed through this task step-by-step. 
+
+```{r, comment = NA}
+gapminder %>%
+  select(continent, country, year, lifeExp) %>%
+  group_by(year) %>%
+  mutate(mean_lifeExp = mean(lifeExp))
+```
+
+The above command prints out a subset of the original `gapminder` dataset, containing `continent`, `country`, `year`, and `lifeExp` columns in addition to a new `mean_lifeExp` column, which lists the mean global life expectancy for the corresponding year. Next, we will identify which countries in each continent can be regarded to have low life expectancy each year. 
+
+```{r, comment = NA}
+gapminder %>%
+  select(continent, country, year, lifeExp) %>%
+  group_by(year) %>%
+  mutate(mean_lifeExp = mean(lifeExp)) %>%
+  group_by(continent) %>%
+  filter(lifeExp < mean_lifeExp) 
+```
+
+This command filters out only those observations which have a life expectancy less than the mean life expectancy for that year. We can see that a total of 824 countries have had low life expectancy at some time between 1952 and 2007. How many countries had low life expectancy in each continent at specific years?
+
+```{r, comment = NA}
+gapminder %>%
+  select(continent, country, year, lifeExp) %>%
+  group_by(year) %>%
+  mutate(mean_lifeExp = mean(lifeExp)) %>%
+  group_by(continent) %>%
+  filter(lifeExp < mean_lifeExp) %>%
+  group_by(year) %>%
+  count(continent) %>%
+  mutate("number of countries" = n) %>%
+  select(year, continent, "number of countries")
+```
+
+This output shows us a breakdown of the number of countries with low life expectancy, grouped by year and continent. We can better visualize this by plotting a stacked bar graph of country counts by continent and year. 
+
+```{r, fig.align='center'}
+gapminder %>%
+  select(continent, country, year, lifeExp) %>%
+  group_by(year) %>%
+  mutate(mean_lifeExp = mean(lifeExp)) %>%
+  group_by(continent) %>%
+  filter(lifeExp < mean_lifeExp) %>%
+  group_by(year) %>%
+  count(continent) %>%
+  ggplot(aes(x = year, y = n, fill = continent)) +
+  geom_bar(stat = "identity") +
+  ylab("country count")
+```
+
+From this plot, we can observe that Africa has the most countries classified as having low life expectancy, while Oceania has no countries with low life expectancy, followed by Europe with very few low life expectancy countries. Over time, Africa seems to have a consistent country count for low life expectancy, whereas the Americas, Asia, and Europe have seen decreases in the abundance of countries with low life expectancy - with Europe not having any countries with low life expectancy by the 1990s. 
+
+However, in terms of comparing abundance between countries, it is important to consider the relative abundance by including a denominator in calculations. Let's consider a denominator of total number of countries within the continent in a particular year. 
+
+```{r, comment = NA}
+gapminder %>%
+  select(continent, country, year, lifeExp) %>%
+  group_by(year) %>%
+  mutate(mean_lifeExp = mean(lifeExp)) %>%
+  ungroup() %>%
+  group_by(year, continent) %>%
+  mutate(total_count = n()) %>%
+  filter(lifeExp < mean_lifeExp) %>%
+  group_by(year, continent) %>%
+  mutate(number_of_countries = n()) %>%
+  select(continent, year, number_of_countries, total_count) %>%
+  mutate(relative_abundance = (number_of_countries / total_count)*100) %>%
+  distinct()
+```
+
+By considering relative abundance, we can add more context to the value in the tibble. While absolute abundance provides a count, relative abundance provides a count in relation to a total (in this case, the proportion of countries within a continent that have low life expectancy for a given year). We see that in 1952, 67% of countries in Asia, 96% in Africa, 36% in the Americas, 3% in Europe and 0% in Oceania had low life expectancy. By 2007, these proportions were reduced to 30% in Asia, 86% in Africa, 8% in the Americas, and no countries in Europe and Oceania. We can plot these findings using a similar stacked bar plot.
+
+```{r, fig.align='center'}
+gapminder %>%
+  select(continent, country, year, lifeExp) %>%
+  group_by(year) %>%
+  mutate(mean_lifeExp = mean(lifeExp)) %>%
+  ungroup() %>%
+  group_by(year, continent) %>%
+  mutate(total_count = n()) %>%
+  filter(lifeExp < mean_lifeExp) %>%
+  group_by(year, continent) %>%
+  mutate(number_of_countries = n()) %>%
+  select(continent, year, number_of_countries, total_count) %>%
+  mutate(relative_abundance = (number_of_countries / total_count)*100) %>%
+  distinct() %>%
+  ggplot(aes(x = year, y = relative_abundance, fill = continent)) +
+  geom_bar(stat = "identity") +
+  ylab("relative abundance (%)")
+```
+
+From this relative abundance plot, we observe a similar pattern to the absolute abundance plot. All continents have experienced reductions in relative abundance of low life expectancy over the years, to some extent. Africa seems to have had the slowest decline, while the Americas and Asia have had the sharpest drops between 1952 and 2007.
+
+
+# Task 2
+
+For our next task, suppose we wanted to obtain the minimum and maximum GDP per capita for all continents represented in the dataset (task option 2). Our first step would be to group the data observations by continent, and then subsequently compute minimum and maximum GDP per capita within continent groupings. 
+
+```{r}
+gapminder %>%
+  select(continent, gdpPercap) %>%
+  group_by(continent) %>%
+  summarise(min_GDP = min(gdpPercap), max_GDP = max(gdpPercap))
+```
+
+This output allows us to observe the minimum and maximum GDP per capita experienced by each continent between the years of 1952 and 2007. If we wanted to graphically observe the relationship between minimum and maximum GDP and how they vary between continents, we can make a point plot.
+
+```{r fig.align='center'}
+gapminder %>%
+  select(continent, gdpPercap) %>%
+  group_by(continent) %>%
+  mutate(min_GDP = min(gdpPercap), max_GDP = max(gdpPercap)) %>%
+  filter(gdpPercap == min_GDP | gdpPercap == max_GDP) %>%
+  ggplot() +
+  geom_point(aes(x = factor(continent), y = min_GDP), colour = "blue", size = 2) +
+  geom_point(aes(x = factor(continent), y = max_GDP), colour = "red", size = 2) +
+  scale_y_log10("GDP per capita (log(US$))", labels = scales::comma_format())
+```
+
+The plot above depicts minimum GDP values (blue points) and maximum GDP values (red points) for each continent. We can observe that Asia has the greatest spread in GDP values between minimum and maximum, whereas Oceania has the smallest range in GDP values. In addition, we can infer that in the `gapminder` dataset, the country with the lowest GDP per capita is in Africa while the country with the highest GDP per capita is in Asia. We can confirm this through the following code chunk - we see that the Democratic Republic of Congo in Africa has the lowest GDP per capita of US$241.17 and Kuwait in Asia has the highest GDP per capita of US$113,523.13.
+
+```{r, comment = NA}
+gapminder %>%
+  select(continent, country, gdpPercap) %>%
+  mutate(min_GDP = min(gdpPercap), max_GDP = max(gdpPercap)) %>%
+  filter(gdpPercap == min_GDP | gdpPercap == max_GDP) %>%
+  select(continent, country, gdpPercap)
+```
+
+We can better analyze spread of GDP per capita within continents by taking a look at 5-number summaries. Here we will construct a simplified version consisting of minimum, mean, median, maximum, and standard deviation values.  
+
+```{r, comment = NA}
+gapminder %>%
+  select(continent, gdpPercap) %>%
+  group_by(continent) %>%
+  summarise(min_GDP = min(gdpPercap), mean_GDP = mean(gdpPercap), median_GDP = median(gdpPercap), max_GDP = max(gdpPercap), sd_GDP = sd(gdpPercap))
+```
+
+Let's visualize this data through side-by-side box plots to better compare GDP per capita spread between continents. 
+
+```{r, fig.align='center'}
+gapminder %>%
+  select(continent, gdpPercap) %>%
+  group_by(continent) %>%
+  ggplot(aes(x = continent, y = gdpPercap)) +
+  geom_boxplot() +
+  scale_y_log10("GDP per capita (log(US$))", labels = scales::comma_format())
+```
+
+These boxplots futher support our prior statements of Asia having the widest spread in GDP per capita and Oceania having the smallest spread. In addition, we note that within each continent, there is large diversity in GDP per capita, as depicted by the long whiskers on either end of the center box in each boxplot. 
+
+
+# Task 3
+
+In our final task, let's explore how life expectancy has been changing over time in the different continents (task option 5). To achieve this, we will consider the mean life expectancy of each continent at each time point between 1952 and 2007.
+
+```{r, comment = NA}
+gapminder %>%
+  select(continent, year, lifeExp) %>%
+  group_by(continent, year) %>%
+  mutate(mean_lifeExp = mean(lifeExp)) %>%
+  select(continent, year, mean_lifeExp) %>%
+  distinct()
+```
+
+The above code chunk prints out the mean life expectancy of each continent at specific time points between 1952 and 2007. We see that mean life expectancy has been increasing over time in all continents: from values in 1952 of 46 years in Asia, 64 years in Europe, 39 years in Africa, 53 years in the Americas, and 69 years in Oceania to values in 2007 of 71 years in Asia, 78 years in Europe, 55 years in Africa, 74 years in the Americas, and 81 years in Oceania. To investigate more explicity how life expectancy has been changing over time, let's plot a time series graph with lines for each continent.
+
+```{r, fig.align='center'}
+gapminder %>%
+  select(continent, year, lifeExp) %>%
+  group_by(continent, year) %>%
+  mutate(mean_lifeExp = mean(lifeExp)) %>%
+  select(continent, year, mean_lifeExp) %>%
+  distinct() %>%
+  ggplot(aes(x = year, y = mean_lifeExp, col = continent)) +
+  geom_point() +
+  geom_line() +
+  ylab("mean life expectancy (years)")
+```
+
+From the time series plot, we can observe that all continents have experienced relatively consistent linear increases in mean life expectancy between 1952 and 2007, with the exception of Africa experiencing a plateau between 1987 and 2002 and Oceania experiencing a slight plateau between 1967 and 1972. We can also infer that the Americas and Asia had the sharpest increases in life expectancy, whereas Oceania and Europe had slower rates of life expectancy increase. Overall, global life expectancy seems to be increasing linearly with time.
