@@ -1,0 +1,144 @@
+---
+title: "Assignment 4 - Tidy Data and Table Joins"
+author: "Lulu Pei"
+date: "03/10/2019"
+output: 
+  html_document:
+    toc: true
+---
+
+In this assignment, we will be exploring methods of data tidying and reshaping, as well as table joining. We will be performing these manipulations using `dplyr` and `tidyr` functions, so we need to first load their parent package, `tidyverse`. For the first two exercises, we will be using the `gapminder` dataset, so we must also load the `gapminder` package to access this data. 
+
+```{r, message = FALSE}
+library(gapminder)
+library(tidyverse)
+```
+
+With all of our tools loaded, let's get started with the exercises!
+
+# Exercise 1: Univariate Data Reshaping 
+
+## _Data Re-shaping_
+
+From our `gapminder` dataset, suppose we want to compare the life expectancy between two countries by year. Let's pick Canada and Cambodia as our two countries. We will need to perform some re-shaping of the `gapminder` dataset to obtain two separate columns for the life expectancy of Canada and the life expectancy of Cambodia.
+
+```{r, comment = NA}
+uni_wide <- gapminder %>%
+  filter(country == "Canada" | country == "Cambodia") %>%
+  select(year, country, lifeExp) %>%
+  pivot_wider(id_cols = year, names_from = country, values_from = lifeExp) %>%
+  arrange(year)
+ 
+uni_wide %>%
+  select(year, "Cambodia_lifeExp" = Cambodia, "Canada_lifeExp" = Canada)
+```
+
+The output tibble above provides the life expectancy of Cambodia and the life expectancy of Canada in individual rows representing each time point between 1952 and 2007 in the `gapminder` dataset.
+
+## _Plotting_
+
+To better visualize the relationship between life expectancy of Cambodia and life expectancy of Canada, let's create a scatterplot. 
+
+```{r, fig.align='center'}
+uni_wide %>%
+  ggplot(aes(x = Canada, y = Cambodia)) +
+  geom_point(colour = "blue", size = 2) +
+  ylab("Cambodia life expectancy (years)") +
+  xlab("Canada life expectancy (years)")
+```
+
+In the plot above, each point represents an observation from a time point between 1952 and 2007, ordered chronologically from left to right. We observe an overall positive relationship between life expectancy in Cambodia and life expectancy in Canada, suggesting that between 1952 and 2007, both Cambodia and Canada have experienced increases in life expectancy. However, we cannot ignore the significant drop in life expectancy experienced by Cambodia between 1967 and 1977. Between these two years, Canada continued to experience a consistent increase in life expectancy, whereas Cambodia experienced a drop in life expectancy of almost 15 years. This extreme decline can be attributed to the Khmer Rouge genocide that occurred in Cambodia during that time, which resulted in the deaths of nearly a quarter of Cambodia's population. 
+
+## _Data Re-lengthening_
+
+Now that we've performed our desired analysis on the widened subset of the `gapminder` dataset, let's re-lengthen it back to its original form.
+
+```{r, comment = NA}
+uni_wide %>%
+  pivot_longer(cols = (-year), names_to = "country", values_to = "lifeExp")
+```
+
+The outputted tibble is in a longer format, with Cambodia and Canada columns collapsed back into a single `country` column, with values going to the `lifeExp` column. 
+
+# Exercise 2: Multivariate Data Reshaping
+
+## _Data Re-shaping_
+
+Let's take a look at a multivariate case for data re-shaping. Suppose that we are interested in investigating the life expectancy and GDP per capita for two countries: Australia and Sweden. We must widen the original `gapminder` dataset to contain separate columns for life expectancy and GDP per capita values for Australia and Sweden, for each time point between 1952 and 2007. 
+
+```{r, comment = NA}
+multi_wide <- gapminder %>%
+  filter(country == "Australia" | country == "Sweden") %>%
+  select(country, year, lifeExp, gdpPercap) %>%
+  pivot_wider(id_cols = year, names_from = country, values_from = c(lifeExp, gdpPercap)) %>%
+  arrange(year)
+
+multi_wide %>%
+  select(year, "Australia_lifeExp" = lifeExp_Australia, "Sweden_lifeExp" = lifeExp_Sweden, "Australia_gdp" = gdpPercap_Australia, "Sweden_gdp" = gdpPercap_Sweden)
+```
+
+The tibble above displays a summary of a subset of the `gapminder` dataset, combining two observations from the original dataset into a single row (characterized by year). We can easily identify the life expectancy and GDP per capita for Australia and Sweden at any given time point between 1952 and 2007. 
+
+## _Data Re-lengthening_
+
+Now, suppose we want to re-lengthen our widened data back to its original form. 
+
+```{r, comment = NA}
+multi_wide %>%
+  pivot_longer(cols = (-year), names_to = c(".value", "country"), names_sep = "_")
+```
+
+We see that re-lengthening our data collapses country names back into the `country` factor column, and a single observation per year becomes to two separate observations for each country. 
+
+# Exercise 3: Table Joins
+
+In this exercise, we will be using guestlist and email address tibbles found on Github. Let's first load these tibbles into our working environment - we will name the guestlist tibble `guest` and the email address tibble `email`. 
+
+```{r, message = FALSE, comment = NA}
+(guest <- read_csv("https://raw.githubusercontent.com/STAT545-UBC/Classroom/master/data/wedding/attend.csv"))
+
+(email <- read_csv("https://raw.githubusercontent.com/STAT545-UBC/Classroom/master/data/wedding/emails.csv"))
+```
+
+Note that in this exercise, we will be converting resulting tibbles into a nicer data frame format for ease of visualization and navigation of columns and observations. We will be using `knitr::kable` and `DT::datatable` for these manipulations. 
+
+## _3.1 - `left_join`_
+
+Taking a look at the guestlist, we notice that it does not contain the contact email addresses for each guest. Let's fix this by adding an additional email address column. Prior to joining these two tibbles, we must slightly reshape the email address tibble. We can observe that a single contact email address corresponds to many guests, listed as a single observation with names separated by commas. We will need to separate these comma-separated lists into individual rows for each guest. 
+
+```{r, comment = NA}
+email <- email %>% 
+  separate_rows(guest, sep = ", ") %>%
+  rename("name" = guest)
+DT::datatable(email)
+
+guest %>%
+  left_join(email, by = "name") %>%
+  DT::datatable()
+```
+
+The output data frame is the original guestlist with the addition of an `email` column containing the contact email address for each guest.
+
+## _3.2 - `anti_join`_
+
+We notice that there is some discrepancy between the number of guests on the guestlist and the number of guests for which we have emails for in the email address tibble. Suppose we want to know who we have emails for but are not on the guestlist.
+
+```{r, comment = NA}
+email %>%
+  anti_join(guest, by = "name") %>%
+  knitr::kable()
+```
+
+From this output, we see that three guests (Turner Jones, Albert Marshall, and Vivian Marshall) in the email list are not on the guestlist. 
+
+## _3.3 -`full_join`_
+
+Now that we are aware of this discrepancy between the two tibbles, let's make a master list containing all guests who we have emails for, in addition to those on the guestlist.
+
+```{r, comment = NA}
+guest %>%
+  full_join(email, by = "name") %>%
+  DT::datatable()
+```
+
+This data table is essentially the concatenated form of the guestlist and email list - including the three guests who were not originally on the guestlist. 
