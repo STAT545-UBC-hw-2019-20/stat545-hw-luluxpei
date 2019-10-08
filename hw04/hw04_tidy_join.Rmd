@@ -26,7 +26,9 @@ From our `gapminder` dataset, suppose we want to compare the life expectancy bet
 uni_wide <- gapminder %>%
   filter(country == "Canada" | country == "Cambodia") %>%
   select(year, country, lifeExp) %>%
-  pivot_wider(id_cols = year, names_from = country, values_from = lifeExp) %>%
+  pivot_wider(id_cols = year, 
+              names_from = country, 
+              values_from = lifeExp) %>%
   arrange(year)
  
 uni_wide %>%
@@ -55,7 +57,10 @@ Now that we've performed our desired analysis on the widened subset of the `gapm
 
 ```{r, comment = NA}
 uni_wide %>%
-  pivot_longer(cols = (-year), names_to = "country", values_to = "lifeExp")
+  pivot_longer(cols = (-year), 
+               names_to = "country", 
+               values_to = "lifeExp") %>%
+  arrange(country)
 ```
 
 The outputted tibble is in a longer format, with Cambodia and Canada columns collapsed back into a single `country` column, with values going to the `lifeExp` column. 
@@ -70,11 +75,14 @@ Let's take a look at a multivariate case for data re-shaping. Suppose that we ar
 multi_wide <- gapminder %>%
   filter(country == "Australia" | country == "Sweden") %>%
   select(country, year, lifeExp, gdpPercap) %>%
-  pivot_wider(id_cols = year, names_from = country, values_from = c(lifeExp, gdpPercap)) %>%
+  pivot_wider(id_cols = year, 
+              names_from = country, 
+              values_from = c(lifeExp, gdpPercap)) %>%
   arrange(year)
 
 multi_wide %>%
-  select(year, "Australia_lifeExp" = lifeExp_Australia, "Sweden_lifeExp" = lifeExp_Sweden, "Australia_gdp" = gdpPercap_Australia, "Sweden_gdp" = gdpPercap_Sweden)
+  select(year, "Australia_lifeExp" = lifeExp_Australia, "Sweden_lifeExp" = lifeExp_Sweden, 
+         "Australia_gdp" = gdpPercap_Australia, "Sweden_gdp" = gdpPercap_Sweden)
 ```
 
 The tibble above displays a summary of a subset of the `gapminder` dataset, combining two observations from the original dataset into a single row (characterized by year). We can easily identify the life expectancy and GDP per capita for Australia and Sweden at any given time point between 1952 and 2007. 
@@ -85,10 +93,13 @@ Now, suppose we want to re-lengthen our widened data back to its original form.
 
 ```{r, comment = NA}
 multi_wide %>%
-  pivot_longer(cols = (-year), names_to = c(".value", "country"), names_sep = "_")
+  pivot_longer(cols = (-year), 
+               names_to = c(".value", "country"), 
+               names_sep = "_") %>%
+  arrange(country)
 ```
 
-We see that re-lengthening our data collapses country names back into the `country` factor column, and a single observation per year becomes to two separate observations for each country. 
+We see that re-lengthening our data collapses country names back into the `country` factor column, and a single observation per year becomes two separate observations for each country. 
 
 # Exercise 3: Table Joins
 
@@ -111,7 +122,11 @@ email <- email %>%
   separate_rows(guest, sep = ", ") %>%
   rename("name" = guest)
 DT::datatable(email)
+```
 
+Now that the email tibble is in a more tidy form, with each row corresponding to only one guest, let's add an email address column to the guestlist. 
+
+```{r, comment = NA}
 guest %>%
   left_join(email, by = "name") %>%
   DT::datatable()
@@ -141,4 +156,4 @@ guest %>%
   DT::datatable()
 ```
 
-This data table is essentially the concatenated form of the guestlist and email list - including the three guests who were not originally on the guestlist. 
+This data table is the concatenated form of the guestlist and email list - including the three guests who were not originally on the guestlist. 
