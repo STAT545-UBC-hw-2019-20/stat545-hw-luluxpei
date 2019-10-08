@@ -45,7 +45,9 @@ expectancy of Canada and the life expectancy of Cambodia.
 uni_wide <- gapminder %>%
   filter(country == "Canada" | country == "Cambodia") %>%
   select(year, country, lifeExp) %>%
-  pivot_wider(id_cols = year, names_from = country, values_from = lifeExp) %>%
+  pivot_wider(id_cols = year, 
+              names_from = country, 
+              values_from = lifeExp) %>%
   arrange(year)
  
 uni_wide %>%
@@ -107,22 +109,25 @@ the `gapminder` dataset, let’s re-lengthen it back to its original form.
 
 ``` r
 uni_wide %>%
-  pivot_longer(cols = (-year), names_to = "country", values_to = "lifeExp")
+  pivot_longer(cols = (-year), 
+               names_to = "country", 
+               values_to = "lifeExp") %>%
+  arrange(country)
 ```
 
     # A tibble: 24 x 3
         year country  lifeExp
        <int> <chr>      <dbl>
      1  1952 Cambodia    39.4
-     2  1952 Canada      68.8
-     3  1957 Cambodia    41.4
-     4  1957 Canada      70.0
-     5  1962 Cambodia    43.4
-     6  1962 Canada      71.3
-     7  1967 Cambodia    45.4
-     8  1967 Canada      72.1
-     9  1972 Cambodia    40.3
-    10  1972 Canada      72.9
+     2  1957 Cambodia    41.4
+     3  1962 Cambodia    43.4
+     4  1967 Cambodia    45.4
+     5  1972 Cambodia    40.3
+     6  1977 Cambodia    31.2
+     7  1982 Cambodia    51.0
+     8  1987 Cambodia    53.9
+     9  1992 Cambodia    55.8
+    10  1997 Cambodia    56.5
     # ... with 14 more rows
 
 The outputted tibble is in a longer format, with Cambodia and Canada
@@ -144,11 +149,14 @@ time point between 1952 and 2007.
 multi_wide <- gapminder %>%
   filter(country == "Australia" | country == "Sweden") %>%
   select(country, year, lifeExp, gdpPercap) %>%
-  pivot_wider(id_cols = year, names_from = country, values_from = c(lifeExp, gdpPercap)) %>%
+  pivot_wider(id_cols = year, 
+              names_from = country, 
+              values_from = c(lifeExp, gdpPercap)) %>%
   arrange(year)
 
 multi_wide %>%
-  select(year, "Australia_lifeExp" = lifeExp_Australia, "Sweden_lifeExp" = lifeExp_Sweden, "Australia_gdp" = gdpPercap_Australia, "Sweden_gdp" = gdpPercap_Sweden)
+  select(year, "Australia_lifeExp" = lifeExp_Australia, "Sweden_lifeExp" = lifeExp_Sweden, 
+         "Australia_gdp" = gdpPercap_Australia, "Sweden_gdp" = gdpPercap_Sweden)
 ```
 
     # A tibble: 12 x 5
@@ -180,27 +188,30 @@ original form.
 
 ``` r
 multi_wide %>%
-  pivot_longer(cols = (-year), names_to = c(".value", "country"), names_sep = "_")
+  pivot_longer(cols = (-year), 
+               names_to = c(".value", "country"), 
+               names_sep = "_") %>%
+  arrange(country)
 ```
 
     # A tibble: 24 x 4
         year country   lifeExp gdpPercap
        <int> <chr>       <dbl>     <dbl>
      1  1952 Australia    69.1    10040.
-     2  1952 Sweden       71.9     8528.
-     3  1957 Australia    70.3    10950.
-     4  1957 Sweden       72.5     9912.
-     5  1962 Australia    70.9    12217.
-     6  1962 Sweden       73.4    12329.
-     7  1967 Australia    71.1    14526.
-     8  1967 Sweden       74.2    15258.
-     9  1972 Australia    71.9    16789.
-    10  1972 Sweden       74.7    17832.
+     2  1957 Australia    70.3    10950.
+     3  1962 Australia    70.9    12217.
+     4  1967 Australia    71.1    14526.
+     5  1972 Australia    71.9    16789.
+     6  1977 Australia    73.5    18334.
+     7  1982 Australia    74.7    19477.
+     8  1987 Australia    76.3    21889.
+     9  1992 Australia    77.6    23425.
+    10  1997 Australia    78.8    26998.
     # ... with 14 more rows
 
 We see that re-lengthening our data collapses country names back into
 the `country` factor column, and a single observation per year becomes
-to two separate observations for each country.
+two separate observations for each country.
 
 # Exercise 3: Table Joins
 
@@ -250,6 +261,11 @@ address tibble `email`.
     13 Turner Jones                                      tjjones12@hotmail.ca  
     14 Albert Marshall, Vivian Marshall                  themarshallfamily1234~
 
+Note that in this exercise, we will be converting resulting tibbles into
+a nicer data frame format for ease of visualization and navigation of
+columns and observations. We will be using `knitr::kable` and
+`DT::datatable` for these manipulations.
+
 ## *3.1 - `left_join`*
 
 Taking a look at the guestlist, we notice that it does not contain the
@@ -282,6 +298,10 @@ guest.
     10 Hayley Booker   jw1987@hotmail.com 
     # ... with 18 more rows
 
+Now that the email tibble is in a more tidy form, with each row
+corresponding to only one guest, let’s add an email address column to
+the guestlist.
+
 ``` r
 guest %>%
   left_join(email, by = "name")
@@ -303,7 +323,7 @@ guest %>%
     # ... with 20 more rows, and 2 more variables: attendance_golf <chr>,
     #   email <chr>
 
-The output tibble is the original guestlist with the addition of an
+The output data frame is the original guestlist with the addition of an
 `email` column containing the contact email address for each guest.
 
 ## *3.2 - `anti_join`*
@@ -315,15 +335,15 @@ but are not on the guestlist.
 
 ``` r
 email %>%
-  anti_join(guest, by = "name")
+  anti_join(guest, by = "name") %>%
+  knitr::kable()
 ```
 
-    # A tibble: 3 x 2
-      name            email                          
-      <chr>           <chr>                          
-    1 Turner Jones    tjjones12@hotmail.ca           
-    2 Albert Marshall themarshallfamily1234@gmail.com
-    3 Vivian Marshall themarshallfamily1234@gmail.com
+| name            | email                             |
+| :-------------- | :-------------------------------- |
+| Turner Jones    | <tjjones12@hotmail.ca>            |
+| Albert Marshall | <themarshallfamily1234@gmail.com> |
+| Vivian Marshall | <themarshallfamily1234@gmail.com> |
 
 From this output, we see that three guests (Turner Jones, Albert
 Marshall, and Vivian Marshall) in the email list are not on the
@@ -356,6 +376,6 @@ guest %>%
     # ... with 23 more rows, and 2 more variables: attendance_golf <chr>,
     #   email <chr>
 
-This data tibble is essentially the concatenated form of the guestlist
-and email list - including the three guests who were not originally on
-the guestlist.
+This data table is the concatenated form of the guestlist and email
+list, including the three guests who were not originally on the
+guestlist.
