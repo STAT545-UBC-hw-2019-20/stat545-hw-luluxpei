@@ -4,4 +4,4 @@ __Welcome!__ You've found the folder containing all files for Homework 5 of STAT
 
 To navigate to the rendered `.html` file, please use the following link:
 
-https://stat545-ubc-hw-2019-20.github.io/stat545-hw-luluxpei/hw04/hw05_factor_figure.html
+https://stat545-ubc-hw-2019-20.github.io/stat545-hw-luluxpei/hw05/hw05_factor_figure.html
